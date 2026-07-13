@@ -1,0 +1,7 @@
+const express=require('express'),bcrypt=require('bcryptjs'),{z}=require('zod'),{signAccessToken,signRefreshToken,verifyRefreshToken}=require('../services/tokenService'),{authLimiter}=require('../middleware/rateLimiter');
+const users=new Map(),router=express.Router();
+const Schema=z.object({email:z.string().email(),password:z.string().min(8),name:z.string().optional()});
+router.post('/register',(req,res,next)=>{try{const{email,password,name}=Schema.parse(req.body);if(users.has(email))return res.status(409).json({error:'Email exists'});const user={id:users.size+1,email,name:name||'',hash:bcrypt.hashSync(password,10)};users.set(email,user);res.status(201).json({access_token:signAccessToken({userId:user.id,email}),refresh_token:signRefreshToken({userId:user.id,email})});}catch(e){next(e);}});
+router.post('/login',authLimiter,(req,res,next)=>{try{const{email,password}=req.body;const u=users.get(email);if(!u||!bcrypt.compareSync(password,u.hash))return res.status(401).json({error:'Invalid credentials'});res.json({access_token:signAccessToken({userId:u.id,email}),refresh_token:signRefreshToken({userId:u.id,email})});}catch(e){next(e);}});
+router.post('/refresh',(req,res)=>{try{const{refresh_token}=req.body;if(!refresh_token)return res.status(400).json({error:'refresh_token required'});const p=verifyRefreshToken(refresh_token);res.json({access_token:signAccessToken({userId:p.userId,email:p.email})});}catch{res.status(401).json({error:'Invalid refresh token'});}});
+module.exports=router;
