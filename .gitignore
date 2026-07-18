@@ -4,3 +4,19 @@ __pycache__/
 venv/
 *.log
 .DS_Store
+
+
+# Node.js
+node_modules/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
