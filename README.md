@@ -248,6 +248,9 @@ const verifyAccessToken = (token) => jwt.verify(token, process.env.JWT_SECRET);
 - No token revocation/blacklist for refresh tokens.
 - No API version deprecation workflow yet.
 
+- Existing CI workflow file targets Python tooling and should be aligned to Node/Jest for this codebase.
+
+
 ## Future Extensions
 
 - Replace in-memory users with PostgreSQL or MongoDB.
